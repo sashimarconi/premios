@@ -99,17 +99,21 @@ module.exports = async (req, res) => {
     const tx = data.data || data.transaction || data;
     const pix = tx.pix || data.pix || {};
 
+    const qrcodeValue = pix.qrcode || "";
+
     const pixCode =
       pix.code ||
       pix.copyPaste ||
       pix.copy_paste ||
       pix.emv ||
+      qrcodeValue ||
       tx.pixCode ||
       data.pix_code ||
       "";
 
     const qrUrl =
-      pix.qrcode ||
+      pix.receiptUrl ||
+      pix.qrCodeUrl ||
       pix.qrCode ||
       pix.qr_code_url ||
       tx.pixQrCodeUrl ||
@@ -124,7 +128,6 @@ module.exports = async (req, res) => {
       pix_qr_code_url: qrUrl,
       transaction_hash: transactionHash,
       gateway: "ghostspay",
-      raw: data,
     });
   } catch (error) {
     return json(res, 500, {
