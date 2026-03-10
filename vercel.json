@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "/semana2026.shop",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/semana2026.shop/index.html",
+      "destination": "/",
+      "permanent": false
+    }
+  ]
+}
