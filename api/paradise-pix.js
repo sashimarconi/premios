@@ -30,12 +30,13 @@ function normalizeCustomer(customer) {
   return out;
 }
 
-// This endpoint keeps the same route used by the frontend (/api/ghostspay-pix)
-// but forwards/creates a PIX transaction using Paradise gateway.
-// Configuration via env:
-// - PARADISE_API_KEY
+// Paradise PIX endpoint adapter
+// Env vars used:
+// - PARADISE_API_KEY (required)
+// - PARADISE_API_URL (required)
 // - PARADISE_MERCHANT_ID (optional)
-// - PARADISE_API_URL (full base URL, e.g. https://api.paradisepags.com)
+// - PARADISE_API_ENDPOINT (optional, default "/v1/payments")
+// - PARADISE_POSTBACK_URL (optional)
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
@@ -64,7 +65,6 @@ module.exports = async (req, res) => {
       return json(res, 400, { success: false, error: "Cart items are required" });
     }
 
-    // Build payload generically; most gateways accept customer, amount and items.
     const payload = {
       merchant_id: merchantId,
       amount: amount,
@@ -73,10 +73,9 @@ module.exports = async (req, res) => {
       customer,
       items,
       metadata: Object.assign({ source: "mlpremio-vercel" }, body.metadata || {}),
-      postback_url: process.env.PARADISE_POSTBACK_URL || process.env.GHOSTSPAY_POSTBACK_URL,
+      postback_url: process.env.PARADISE_POSTBACK_URL,
     };
 
-    // Allow overriding full endpoint via env, else use a reasonable default path.
     const endpoint = (process.env.PARADISE_API_ENDPOINT || "/v1/payments").replace(/^\/+/, "");
     const url = `${baseUrl.replace(/\/$/, "")}/${endpoint}`;
 
@@ -106,12 +105,9 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Map common response shapes to the expected frontend fields.
     const tx = data.data || data.transaction || data || {};
-
     const pix = tx.pix || tx.payment || tx || {};
 
-    // Try several keys that different gateways use for PIX/qrcode/copy-paste
     const qrcodeValue = pix.qrcode || pix.qr_code || pix.qrCode || pix.qr || "";
 
     const pixCode =
