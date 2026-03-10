@@ -1,0 +1,8 @@
+# Local scraping/cache artifacts
+hts-cache/
+hts-log.txt
+cookies.txt
+
+# OS/editor files
+.DS_Store
+Thumbs.db
