@@ -83,7 +83,7 @@ module.exports = async (req, res) => {
     const gatewayResponse = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "X-API-Key": apiKey,
         "Content-Type": "application/json",
         Accept: "application/json",
       },
